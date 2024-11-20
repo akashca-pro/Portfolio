@@ -405,68 +405,72 @@
     <!-- Java Script
     ================================================== -->
     <script>
-     $("#submit-form").submit(function (e) {
-    e.preventDefault();
-    
+    document.getElementById("submit-form").addEventListener("submit", function (e) {
+    e.preventDefault(); // Prevent default form submission
+
     // Get form values
-    const name = $("#Name").val().trim();
-    const email = $("#Email").val().trim();
-    const number = $("#Number").val().trim();
-    const country = $("#Country").val();
-    const state = $("#State").val();
-    const feedback = $("#comment").val().trim();
-    const errorElement = $("#errorElement");
-    
+    const name = document.getElementById("Name").value.trim();
+    const email = document.getElementById("Email").value.trim();
+    const number = document.getElementById("Number").value.trim();
+    const country = document.getElementById("Country").value;
+    const state = document.getElementById("State").value;
+    const feedback = document.getElementById("comment").value.trim();
+    const errorElement = document.getElementById("errorElement");
+
     // Reset error message
-    errorElement.text("");
-    
+    errorElement.textContent = "";
+
     // Validation checks
     if (!name || !email || !number || !country || !state || !feedback) {
-        errorElement.text("Please fill in all fields");
-        return false;
+        errorElement.textContent = "Please fill in all fields";
+        return;
     }
-    
+
     // Email validation
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
-        errorElement.text("Please enter a valid email address");
-        return false;
+        errorElement.textContent = "Please enter a valid email address";
+        return;
     }
-    
+
     // Phone number validation (assumes Indian format)
     const phonePattern = /^[6-9]\d{9}$/;
     if (!phonePattern.test(number)) {
-        errorElement.text("Please enter a valid 10-digit phone number");
-        return false;
+        errorElement.textContent = "Please enter a valid 10-digit phone number";
+        return;
     }
-    
-    // If all validation passes, proceed with form submission
-    const form = $(this);
-    const submitButton = form.find('input[type="submit"]');
-    
+
+    // Prepare data for submission
+    const formData = new FormData(this);
+
     // Disable submit button to prevent multiple submissions
-    submitButton.prop('disabled', true);
-    
+    const submitButton = document.querySelector('input[type="submit"]');
+    submitButton.disabled = true;
+
     // AJAX submission
-    $.ajax({
-        url: "https://script.google.com/macros/s/AKfycbypnIyxFjwoWv-qLaB56_gSjvnRZ_7EEymrKyRQqhJV1uI2CnC_PkjLu_Ek5532VbFy/exec",
-        data: form.serialize(),
-        method: "post",
-        success: function (response) {
+    fetch("https://script.google.com/macros/s/AKfycbypnIyxFjwoWv-qLaB56_gSjvnRZ_7EEymrKyRQqhJV1uI2CnC_PkjLu_Ek5532VbFy/exec", {
+        method: "POST",
+        body: formData,
+    })
+        .then((response) => {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.json();
+        })
+        .then(() => {
             alert("Form submitted successfully");
-            form[0].reset();
+            document.getElementById("submit-form").reset();
             window.location.reload();
-        },
-        error: function (err) {
+        })
+        .catch((error) => {
             alert("Error submitting form. Please try again.");
-            console.error("Form submission error:", err);
-        },
-        complete: function () {
+            console.error("Form submission error:", error);
+        })
+        .finally(() => {
             // Re-enable submit button
-            submitButton.prop('disabled', false);
-        }
-    });
+            submitButton.disabled = false;
+        });
 });
+
     </script>
     <script src="js/plugins.js"></script>
     <script src="js/main.js"></script>
